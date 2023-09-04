@@ -18,7 +18,6 @@ import sys
 from pathlib import Path
 import unittest
 
-import numpy as np
 from aoc15 import CityGrid
 
 class GridTest(unittest.TestCase):
