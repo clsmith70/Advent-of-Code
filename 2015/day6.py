@@ -47,63 +47,7 @@ import sys
 from pathlib import Path
 import unittest
 
-import numpy as np
-
-class LightGrid(object):
-    """An object to represent the problem"""
-
-    def __init__(self, grid_x:int=1_000, grid_y:int=1_000) -> None:
-        self.lights = np.zeros((grid_x, grid_y), dtype=int)
-        self._count = 0
-
-    def toggle(self, start:list[int, int],
-               end:list[int, int], version:int=1) -> None:
-        """Toggle the lights"""
-        if version == 1:
-            # turn on/off
-            for x_pos in range(start[0], end[0] + 1):
-                for y_pos in range(start[1], end[1] + 1):
-                    self.lights[x_pos, y_pos] = not self.lights[x_pos, y_pos]
-        else:
-            # increase brightness by 2
-            for x_pos in range(start[0], end[0] + 1):
-                for y_pos in range(start[1], end[1] + 1):
-                    self.lights[x_pos, y_pos] += 2
-
-    def set_on(self, start:list[int, int],
-               end:list[int, int], version:int=1) -> None:
-        """turn lights on"""
-        if version == 1:
-            # turn or leave lights on
-            for x_pos in range(start[0], end[0] + 1):
-                for y_pos in range(start[1], end[1] + 1):
-                    self.lights[x_pos, y_pos] = 1
-        else:
-            # increase the brightness
-            for x_pos in range(start[0], end[0] + 1):
-                for y_pos in range(start[1], end[1] + 1):
-                    self.lights[x_pos, y_pos] += 1
-
-    def set_off(self, start:list[int, int],
-               end:list[int, int], version:int=1) -> None:
-        """turn lights off"""
-        if version == 1:
-            # turn or leave lights off
-            for x_pos in range(start[0], end[0] + 1):
-                for y_pos in range(start[1], end[1] + 1):
-                    self.lights[x_pos, y_pos] = 0
-        else:
-            # decrease the brightness
-            for x_pos in range(start[0], end[0] + 1):
-                for y_pos in range(start[1], end[1] + 1):
-                    if self.lights[x_pos, y_pos] > 1:
-                        self.lights[x_pos, y_pos] -= 1
-                    else:
-                        self.lights[x_pos, y_pos] = 0
-
-    def count(self) -> int:
-        """return the object's count"""
-        return np.sum(self.lights)
+from aoc15 import LightGrid
 
 class LightGridTest(unittest.TestCase):
     """Test the grid object"""

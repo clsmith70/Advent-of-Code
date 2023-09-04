@@ -20,22 +20,7 @@
 import sys
 import unittest
 
-from hashlib import md5
-
-class AdventCoin(object):
-    """An (almost) infinte delivery grid"""
-    CHECK_RANGE = 1_000_000_000
-    def __init__(self, key: str, match: str) -> None:
-        self.key = key
-        self.match = match
-
-    def md5hash(self) -> int:
-        """what func does"""
-        for i in range(self.CHECK_RANGE):
-            hash_value = md5(f"{self.key}{i}".encode())
-            if hash_value.hexdigest()[:len(self.match)] == self.match:
-                return i
-        return None
+from aoc15 import AdventCoin
 
 class AdventCoinTest(unittest.TestCase):
     """Test the advent coin"""

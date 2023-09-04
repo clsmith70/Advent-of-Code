@@ -21,35 +21,7 @@ import sys
 from pathlib import Path
 import unittest
 
-class Elevator(object):
-    """The elevator to go between floors"""
-    # the instruction number that first enters the basement
-    _first_negative = 0
-    _negative_occurred = False
-    _instruction_count = 0
-
-    def __init__(self) -> None:
-        self.floor = 0
-
-    def move(self, instructions: str) -> None:
-        """change floors according to the instructions"""
-        for direction in instructions:
-            if direction == '(': # go up
-                self.floor += 1
-                self._instruction_count += 1
-            elif direction == ')': # go down
-                self.floor -= 1
-                self._instruction_count += 1
-                if self.floor < 0 and self._negative_occurred is False:
-                    self._first_negative = self._instruction_count
-                    self._negative_occurred = True
-
-    def get_basement_entry(self):
-        """Get the instruction number of first basement entry"""
-        return f"Instruction {self._first_negative}"
-
-    def __repr__(self):
-        return f"Floor {self.floor}"
+from aoc15 import Elevator
 
 class TestElevator(unittest.TestCase):
     """Test the class"""

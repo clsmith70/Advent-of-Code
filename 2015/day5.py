@@ -34,46 +34,9 @@ import sys
 from pathlib import Path
 import unittest
 
-import re
+from aoc15 import NiceString
 
-class NiceString(object):
-    """A class to check if a string is nice under North Pole rules"""
-
-    REGEX_A = re.compile(r"(.)\1")
-    REGEX_B = re.compile(r"ab|cd|pq|xy")
-    MATCHSET = 'aeiou'
-
-    def __init__(self, string: str) -> None:
-        self._is_nice = False
-        self.string = string
-
-    def _get_char_count(self) -> int:
-        work_string = self.string.casefold()
-        count = {}.fromkeys(self.MATCHSET, 0)
-        for character in work_string:
-            if character in count:
-                count[character] += 1
-        return sum(count.values())
-
-    def check_rules(self) -> bool:
-        """check if the string is nice under the original rules"""
-        if self._get_char_count() >= 3:
-            if self.REGEX_A.findall(self.string):
-                if not self.REGEX_B.findall(self.string):
-                    return True
-        return False
-
-    def check_new_rules(self) -> None:
-        """check if the string is nice under the new rules"""
-        if not any([self.string[i] == self.string[i+2] 
-                    for i in range(len(self.string)-2)]):
-            return False
-        if any([self.string.count(self.string[i: i+2]) >= 2
-                for i in range(len(self.string) -2)]):
-            return True
-        return False
-
-class TemplateTest(unittest.TestCase):
+class NiceTest(unittest.TestCase):
     """Test the object"""
     def test_original_rules(self) -> None:
         """

@@ -32,36 +32,7 @@ from pathlib import Path
 import unittest
 
 import re
-
-class Present(object):
-    """A present to be wrapped"""
-
-    def __init__(self, length: int, width: int, height: int) -> None:
-        self.length = length
-        self.width = width
-        self.height = height
-
-    def sorted_dimensions(self) -> tuple[int, int, int]:
-        """return the sorted side sizes"""
-        dimensions = self.length, self.width, self.height
-        return sorted(dimensions)
-
-    def get_total_paper(self) -> int:
-        """calculate the total square feet of paper need to wrap this present"""
-        dimensions = self.sorted_dimensions()
-        smallest_side = dimensions[0] * dimensions[1]
-
-        return ((2 * self.length * self.width) +
-                (2 * self.width * self.height) +
-                (2 * self.height * self.length) + smallest_side)
-
-    def get_total_ribbon(self) -> int:
-        """calculate the feet of ribbon required for the perfect bow"""
-        dimensions = self.sorted_dimensions()
-        ribbon_length = (dimensions[0] * 2) + (dimensions[1] * 2)
-        bow_length = self.length * self.width * self.height
-
-        return ribbon_length + bow_length
+from aoc15 import Present
 
 class TestPresent(unittest.TestCase):
     """Test the present"""

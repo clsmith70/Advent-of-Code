@@ -19,67 +19,7 @@ from pathlib import Path
 import unittest
 
 import numpy as np
-
-class CityGrid(object):
-    """An (almost) infinte delivery grid"""
-
-    def __init__(self, robo: bool = False) -> None:
-        self._delivery_count: int = 0
-        self._grid = np.zeros((10_000, 10_000), dtype=int)
-        """
-            index 0 is north/south and index 1 is east/west
-            start santa and robosanta in the middle of the grid
-        """
-        self._santa: tuple = [4_999, 4_999]
-        self._robosanta: tuple = [4_999, 4_999]
-        self._roboturn: bool = False
-        self._delivery_count = 1
-        if robo:
-            self._grid[self._santa[0], self._santa[1]] += 2
-        else:
-            self._grid[self._santa[0], self._santa[1]] += 1
-        self.robo = robo
-
-    def deliver(self, directions: str) -> None:
-        """deliver gifts within the grid"""
-        for direction in directions:
-            if self.robo:
-                if self._roboturn:
-                    self._robosanta = self._move(direction, self._robosanta)
-                    self._visit_position(self._robosanta)
-                    self._roboturn = not self._roboturn
-                else:
-                    self._santa = self._move(direction, self._santa)
-                    self._visit_position(self._santa)
-                    self._roboturn = not self._roboturn
-            else:
-                self._santa = self._move(direction, self._santa)
-                self._visit_position(self._santa)
-
-    def _move(self, direction: str,
-             position: tuple[int, int]) -> tuple[int, int]:
-        """move one grid square in the indicated direction"""
-        if direction == '^': # move north
-            position[0] += 1
-        elif direction == 'v': # move south
-            position[0] -= 1
-        elif direction == '<': # move west
-            position[1] -= 1
-        elif direction == '>': # move east
-            position[1] += 1
-        return position
-    
-    def _visit_position(self, position: tuple[int, int]) -> None:
-        """check to see if this grid position was previously visited"""
-        if self._grid[position[0], position[1]] == 0:
-            self._delivery_count += 1
-
-        # add a visit to the position
-        self._grid[position[0], position[1]] += 1
-
-    def count(self) -> int:
-        """return the count of houses that received at least one gift"""
-        return self._delivery_count
+from aoc15 import CityGrid
 
 class GridTest(unittest.TestCase):
     """Test the grid"""
