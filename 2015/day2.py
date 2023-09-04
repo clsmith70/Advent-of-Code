@@ -67,8 +67,8 @@ if __name__ == '__main__':
             total_ribbon: int = 0
 
             for line in data:
-                l, w, h = get_dimensions(line)
-                present = Present(l, w, h)
+                lx, wx, hx = get_dimensions(line)
+                present = Present(lx, wx, hx)
                 total_paper += present.get_total_paper()
                 total_ribbon += present.get_total_ribbon()
 
