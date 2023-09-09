@@ -32,30 +32,7 @@ import sys
 from pathlib import Path
 import unittest
 
-class SantasList(object):
-    """An object to represent the problem"""
-
-    def __init__(self, data:list) -> None:
-        self._code_length = 0
-        self._memory_length = 0
-        self._encoded_memory_length = 0
-        self._list = data
-        self._process_code()
-
-    def _process_code(self) -> None:
-        """loop over the list and total up the code and memory lengths"""
-        for line in self._list:
-            self._code_length += len(line)
-            self._memory_length += len(eval(line))
-            self._encoded_memory_length += line.count('\\') + line.count('"') + 2
-
-    def difference(self) -> int:
-        """return the difference between code and memory lengths"""
-        return self._code_length - self._memory_length
-    
-    def encoded_difference(self) -> int:
-        """return the difference between the encoded strings and the original strings"""
-        return self._encoded_memory_length
+from aoc15 import SantasList
 
 class SantasListTest(unittest.TestCase):
     """Test the object"""
