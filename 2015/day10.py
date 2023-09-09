@@ -20,7 +20,6 @@
 """
 import sys
 from pathlib import Path
-from telnetlib import EL
 import unittest
 
 from aoc15 import ElfSay
