@@ -1,0 +1,16 @@
+{
+    "editor.codeActionsOnSave": {
+
+    },
+    "editor.indentSize": "tabSize",
+    "editor.mouseWheelZoom": true,
+    "editor.rulers": [
+        
+
+
+        {
+            "column": 88,
+            "color": "#ff7777"
+        }
+    ],
+}
