@@ -435,3 +435,41 @@ class Travel(object):
     def longest(self) -> int:
         """return the longest path cost"""
         return self._longest
+
+class ElfSay(object):
+    """An object to represent the problem"""
+
+    def __init__(self, starter:str, repeat:int) -> None:
+        self._data = starter
+        for _ in range(repeat):
+            self._look()
+
+    def _look(self) -> None:
+        """use the current self._data to loop through a look-and-say loop"""
+        result = ""
+        value = self._data
+        while not value == "":
+            (said, value) = self._say(value)
+            result += said
+        self._data = result
+    
+    def _say(self, value:str) -> None:
+        """say the first value in the string with the count of how many there are"""
+        x = value[0]
+        count = 0
+
+        for char in value:
+            if char == x:
+                count += 1
+            else:
+                break
+
+        remaining = value[count:]
+        return(str(count) + x, remaining)
+
+    def _func2(self) -> None:
+        """what func2 does"""
+
+    def count(self) -> int:
+        """return the object's count"""
+        return len(self._data)
