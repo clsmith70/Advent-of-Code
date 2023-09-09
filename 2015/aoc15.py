@@ -1,6 +1,7 @@
 import numpy as np
 from hashlib import md5
 import re
+from itertools import permutations
 
 class Elevator(object):
     """The elevator to go between floors"""
@@ -373,3 +374,64 @@ class SantasList(object):
         """return the difference between the encoded strings and the original strings"""
         return self._encoded_memory_length
 
+class Travel(object):
+    """An object to represent the problem"""
+
+    def __init__(self, distances:list) -> None:
+        self._shortest = 9_999_999
+        self._longest = 0
+        self._distances = distances
+        self._table = {}
+        self._load_table()
+        self._calculate_paths()
+
+    def _load_table(self) -> None:
+        """load the distance data"""
+        for route in self._distances:
+            path = route.split()
+            source = path[0]
+            destination = path[2]
+            distance = int(path[-1])
+
+            if source in self._table.keys():
+                self._table[source].append((destination, distance))
+            else:
+                self._table[source] = [(destination, distance)]
+
+            if destination in self._table.keys():
+                self._table[destination].append((source, distance))
+            else:
+                self._table[destination] = [(source, distance)]
+            
+    def _path_cost(self, path:str) -> int:
+        """calculate the cost of a path"""
+        total = 0
+        path = list(path)
+
+        while len(path) > 1:
+            current_path = path.pop(0)
+            destinations = self._table[current_path]
+
+            for (distance, cost) in destinations:
+                if distance == path[0]:
+                    total += cost
+                    break
+
+        return total
+    
+    def _calculate_paths(self) -> None:
+        """calculate the paths to find the shortest and longest"""
+        for path in permutations(self._table.keys()):
+            trip = self._path_cost(path)
+            if trip < self._shortest:
+                self._shortest = trip
+            if trip > self._longest:
+                self._longest = trip
+
+    def shortest(self) -> int:
+        """return the shortest path cost"""
+        return self._shortest
+    
+    def longest(self) -> int:
+        """return the longest path cost"""
+        return self._longest
