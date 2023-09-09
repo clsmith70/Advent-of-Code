@@ -240,75 +240,109 @@ class Circuit(object):
         to True, change_gate and change_value must be supplied.
     """
 
-    def __init__(self, instructions:list, change_signal:bool=False,
-                change_gate:str=None, change_value:int=None) -> None:
+    def __init__(self, instructions:list, gate_of_interest:str,
+                 change_signal:bool=False, change_gate:str=None,
+                 change_value:int=None) -> None:
         self._gates = {}
+        self._gate_of_interest = gate_of_interest
         self._load_gates([i.split(' -> ') for i in instructions])
         if change_signal:
             self._gates[change_gate] = int(change_value)
         self._execute()
-        for gate in self._gates:
-            print(f"{gate} = {self._gates[gate]}")
+        # for gate, value in self._gates.items():
+        #     print(f"{gate} = {value}")
 
     def _load_gates(self, instructions:list) -> None:
         """Load the initial instructions into the gates"""
         for inst in instructions:
             self._gates[inst[1]] = inst[0]
 
-    def _check_value(self, gate:str) -> bool:
+    def _check_value(self, value:str, gate:bool=True) -> bool:
         """Check if gate contains an int value"""
-        if isinstance(self._gates[gate], int):
-            return True
-        return False
+        if gate:
+            try:
+                if isinstance(int(self._gates[value]), int):
+                    return True
+            except (KeyError, ValueError):
+                return False
+        else:
+            try:
+                if isinstance(int(value), int):
+                    return True
+            except (ValueError, TypeError):
+                return False
 
     def _is_finished(self) -> bool:
         """Check all gates for int, any str returns False"""
-        is_finished = True
-        for key in self._gates:
-            if not isinstance(self._gates[key], int):
-                is_finished = False
-        return is_finished
+        try:
+            if not isinstance(int(self._gates[self._gate_of_interest]), int):
+                return False
+        except ValueError:
+            return False
+        return True
+
+    def _get_result(self, value1:int, value2:int, operand:str) -> int:
+        """Peform the requested operation and return the result"""
+        retval = 0
+
+        if operand == 'LSHIFT':
+            retval = value1 << value2
+        elif operand == 'RSHIFT':
+            retval = value1 >> value2
+        elif operand == 'AND':
+            retval = value1 & value2
+        elif operand == 'OR':
+            retval = value1 | value2
+        elif operand == 'NOT':
+            retval = ~int(value1)
+            if retval > 65535:
+                retval = retval - 65536
+            elif retval < 0:
+                retval = retval + 65536
+
+        return retval
 
     def _execute(self) -> None:
         """Run the loaded instructions until there are no """
         while not self._is_finished():
-            for key in self._gates:
-                if self._check_value(key):
+            for key, value in self._gates.items():
+                if self._check_value(value, False):
                     continue
 
-                temp = self._gates[key].split()
-                if len(temp) == 1:
-                    if isinstance(temp, list):
-                        self._gates[key] = int(temp[0])
-                    else:
-                        self._gates[key] = int(temp)
-                elif len(temp) == 2: # NOT
-                    if self._check_value(temp[1]):
-                        value = ~int(self._gates[temp[1]])
-                        if value < 0:
-                            self._gates[key] = value + 65536
-                        else:
-                            self._gates[key] = value
-                elif len(temp) == 3: # LSHIFT, RSHIFT, AND, OR
-                    """
-                        check each temp value to see if it is an int
-                        if it is, cast and use.  if it is not, get that
-                        value from self._gates, then check that value - repeat
-                    """
-                    if self._check_value(temp[0]):
-                        tgate = int(self._gates[temp[0]])
-                        if temp[1] == 'LSHIFT':
-                            self._gates[key] = tgate << int(temp[2])
-                        elif temp[1] == 'RSHIFT':
-                            self._gates[key] = tgate >> int(temp[2])
-                        elif temp[1] == 'AND':
-                            if self._check_value(temp[2]):
-                                tgate2 = int(self._gates[temp[2]])
-                                self._gates[key] = tgate & tgate2
-                        elif temp[1] == 'OR':
-                            if self._check_value(temp[2]):
-                                tgate2 = int(self._gates[temp[2]])
-                                self._gates[key] = tgate | tgate2
+                temp = value.split()
+                if len(temp) == 1 and self._check_value(temp, False):
+                    self._gates[key] = int(temp)
+
+                elif len(temp) == 1 and isinstance(temp, list):
+                    if self._check_value(temp[0], True):
+                        self._gates[key] = int(self._gates[temp[0]])
+                
+                elif len(temp) == 2 and self._check_value(temp[1], True):
+                    self._gates[key] = self._get_result(int(self._gates[temp[1]]),
+                                            None, temp[0])
+
+                elif len(temp) == 2 and self._check_value(temp[1], False):
+                    self._gates[key] = self._get_result(int(temp[1]), None, temp[0])
+
+                elif (len(temp) == 3 and self._check_value(temp[0], True)
+                      and self._check_value(temp[2], True)):
+                    v1, v2 = int(self._gates[temp[0]]), int(self._gates[temp[2]])
+                    self._gates[key] = self._get_result(v1, v2, temp[1])
+                
+                elif (len(temp) == 3 and self._check_value(temp[0], False)
+                      and self._check_value(temp[2], True)):
+                    v1, v2 = int(temp[0]), int(self._gates[temp[2]])
+                    self._gates[key] = self._get_result(v1, v2, temp[1])
+                
+                elif (len(temp) == 3 and self._check_value(temp[0], True)
+                      and self._check_value(temp[2], False)):
+                    v1, v2 = int(self._gates[temp[0]]), int(temp[2])
+                    self._gates[key] = self._get_result(v1, v2, temp[1])
+                
+                elif (len(temp) == 3 and self._check_value(temp[0], False)
+                      and self._check_value(temp[2], False)):
+                    v1, v2 = int(temp[0]), int(temp[2])
+                    self._gates[key] = self._get_result(v1, v2, temp[1])
 
     def get(self, gate:str) -> int:
         """return the value of the requested gate"""
