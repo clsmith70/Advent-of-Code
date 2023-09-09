@@ -98,7 +98,6 @@ class Circuit(object):
                 retval = retval - 65536
             elif retval < 0:
                 retval = retval + 65536
-        
 
         return retval
 
