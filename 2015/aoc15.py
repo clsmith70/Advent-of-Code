@@ -524,3 +524,62 @@ class PasswordPolicy(object):
     def get_password(self) -> str:
         """return the stored password"""
         return self._password
+
+class JSAbacus(object):
+    """An object to represent the problem"""
+
+    def __init__(self, jsData:str, filter:str=None) -> None:
+        self._sum = 0
+        self._jsdata = jsData
+        self._filter = filter
+        self._process_dict(self._jsdata)
+
+    def set_filter(self, filter:str) -> None:
+        """set or change the filter"""
+        self._filter = filter
+
+    def reprocess(self) -> None:
+        """start the process over"""
+        self._sum = 0
+        self._process_dict(self._jsdata)
+
+    def _process_dict(self, data:str) -> None:
+        """process a json dict"""
+        if isinstance(data, dict):
+            if self._filter is not None:
+                if self._filter not in data.values():
+                    for _, value in data.items():
+                        if isinstance(value, dict):
+                            self._process_dict(value)
+                        elif isinstance(value, list):
+                            self._process_list(value)
+                        elif isinstance(value, int):
+                            self._sum += value
+            else:
+                for _, value in data.items():
+                    if isinstance(value, dict):
+                        self._process_dict(value)
+                    elif isinstance(value, list):
+                        self._process_list(value)
+                    elif isinstance(value, int):
+                        self._sum += value
+        else:
+            self._process_list(data)
+
+    def _process_list(self, data:str) -> None:
+        """process a json list"""
+        if isinstance(data, list):
+            for key in data:
+                if isinstance(key, dict):
+                    self._process_dict(key)
+                elif isinstance(key, list):
+                    self._process_list(key)
+                elif isinstance(key, int):
+                    self._sum += key
+        else:
+            self._process_dict(data)
+
+    def sum(self) -> int:
+        """return the object's count"""
+        return self._sum
+
