@@ -1,3 +1,4 @@
+from readline import get_current_history_length
 import numpy as np
 from hashlib import md5
 import re
@@ -583,3 +584,78 @@ class JSAbacus(object):
         """return the object's count"""
         return self._sum
 
+class Happiness(object):
+    """An object to represent the problem"""
+
+    def __init__(self, seating:list) -> None:
+        self._happiness = []
+        self._guest_list = {}
+        self._create_guest_list(seating)
+
+    def add_host(self) -> None:
+        """add the host to the guest list and reset the score list"""
+        for key, _ in self._guest_list.items():
+            self._guest_list[key].append(('Host', 0))
+
+        self._guest_list['Host'] = []
+        for key, _ in self._guest_list.items():
+            self._guest_list['Host'].append((key, 0))
+
+        self._happiness = []
+
+    def _create_guest_list(self, data) -> None:
+        """set up the guest list with happiness scores"""
+        for line in data:
+            guest1, _, state, score, _, _, _, _, _, _, guest2 = line.split()
+            # remove the . after guest2's name
+            guest2 = guest2[:-1]
+            # convert the score to an int
+            if state == 'lose':
+                score = -int(score)
+            else:
+                score = int(score)
+
+            if guest1 in self._guest_list:
+                self._guest_list[guest1].append((guest2, score))
+            else:
+                self._guest_list[guest1] = [(guest2, score)]
+
+    def _get_neighbor(self, group:list, person:str) -> tuple:
+        """returns the neighor on each side of the person indicated"""
+        position = group.index(person)
+
+        if position == 0:
+            return (group[position + 1], group[-1])
+        elif position == len(group) - 1:
+            return (group[position -1], group[0])
+        else:
+            return (group[position - 1], group[position + 1])
+    
+    def _get_score(self, person:str, nextTo:str) -> int:
+        """get the score for the seating arrangement"""
+        values = self._guest_list[person]
+
+        for (neighbor, score) in values:
+            if neighbor == nextTo:
+                return score
+            
+    def _get_happiness(self, group:tuple) -> int:
+        """get the happiness score of the current permutation"""
+        happiness = 0
+
+        for g in group:
+            (a, b) = self._get_neighbor(list(group), g)
+            happiness += self._get_score(g, a)
+            happiness += self._get_score(g, b)
+
+        return happiness
+
+    def calculate_happiness(self) -> None:
+        """calculate the happiness value of each permutation"""
+        arrangements = permutations(self._guest_list.keys())
+        for group in arrangements:
+            self._happiness.append(self._get_happiness(group))
+
+    def happiness(self) -> int:
+        """return the object's count"""
+        return max(self._happiness)
