@@ -1,4 +1,3 @@
-from readline import get_current_history_length
 import numpy as np
 from hashlib import md5
 import re
