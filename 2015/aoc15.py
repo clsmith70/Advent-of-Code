@@ -473,3 +473,54 @@ class ElfSay(object):
     def count(self) -> int:
         """return the object's count"""
         return len(self._data)
+
+class PasswordPolicy(object):
+    """An object to represent the problem"""
+    CHARS = 'abcdefghjkmnpqrstuvwxyz'
+    DOUBLES = [char + char for char in CHARS]
+    RUNS = [''.join(r) for r in zip(CHARS[:-2], CHARS[1:-1], CHARS[2:])]
+    NEXT_CHAR = {char1: char2 for char1, char2 in zip(CHARS, CHARS[1:] + 'a')}
+
+    def __init__(self, initial_password:str=None) -> None:
+        self._password = initial_password
+
+    def set_password(self, password:str) -> None:
+        """load a password to test or get the next one for"""
+        self._password = password
+
+    def next_password(self) -> str:
+        """get the next password according to the rules"""
+        test = r"ilo"
+        if any(elem in self._password for elem in test):
+            self._password = self._password.replace('i', 'j')
+            self._password = self._password.replace('l', 'm')
+            self._password = self._password.replace('o', 'p')
+
+        password = self._password[:-1] + self.NEXT_CHAR[self._password[-1]]
+
+        for i in range(-1, -8, -1):
+            if password[i] == 'a':
+                password = password[:i -1] + \
+                    self.NEXT_CHAR[password[i - 1]] + password[i:]
+            else:
+                break
+        
+        self._password = password
+
+    def is_valid(self) -> bool:
+        """check the validity of the currently loaded password"""
+        test = r"ilo"
+        if any(elem in self._password for elem in test):
+            return False
+
+        if sum([pair in self._password for pair in self.DOUBLES]) < 2:
+            return False
+        
+        if not any([run in self._password for run in self.RUNS]):
+            return False
+        
+        return True
+    
+    def get_password(self) -> str:
+        """return the stored password"""
+        return self._password
