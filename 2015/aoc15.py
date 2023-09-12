@@ -658,3 +658,99 @@ class Happiness(object):
     def happiness(self) -> int:
         """return the object's count"""
         return max(self._happiness)
+
+class Reindeer(object):
+    """An object to represent the problem"""
+    RACE_TYPES = ['distance', 'points']
+
+    def __init__(self, data:list, race_type:str='distance', 
+                 race_time:int=2503) -> None:
+        self._reindeer_list = {}
+        self._race_type = race_type
+        self._race_time = race_time
+        self._build_reindeer_list(data)
+
+        if race_type == self.RACE_TYPES[1]:
+            self._points = {}
+            for deer in self._reindeer_list:
+                self._points[deer] = 0
+
+            for _ in range(self._race_time):
+                for deer in self._reindeer_list:
+                    self._run_race(deer)
+
+                furthest_distance = -1
+                leader = None
+
+                for deer in self._reindeer_list:
+                    distance = self._reindeer_list[deer][3]
+                    if distance >= furthest_distance:
+                        furthest_distance = distance
+                        leader = deer
+                self._points[leader] += 1
+        else:
+            for deer in self._reindeer_list:
+                deer = self._run_race(deer)
+
+    def _build_reindeer_list(self, data:list) -> None:
+        """build the dict of reindeer and their running stats"""
+        for line in data:
+            reindeer, _, _, distance, _, _, duration, *_, rest, _ = line.split()
+            flying, secflown, rested = True, 0, 0
+            # 0 is for total_distance flown
+            self._reindeer_list[reindeer] = [int(distance), int(duration), int(rest), 
+                        0, flying, secflown, rested]
+
+    def _run_race(self, deer:list) -> list:
+        """
+            run the race using the type specified, old rules = distance, new = points
+            if self._race_type is not in self.RACE_TYPES, run a distance race
+        """
+        (distance, duration, rest, distance_flown, 
+         flying, secflown, rested) = self._reindeer_list[deer]
+
+        if (self._race_type == self.RACE_TYPES[0] or 
+                self._race_type not in self.RACE_TYPES):
+            at_rest = False
+            clock = 0
+            total_distance = 0
+
+            while clock < self._race_time:
+                if at_rest:
+                    at_rest = not at_rest
+                    clock += rest
+                else:
+                    at_rest = not at_rest
+                    clock += duration
+                    total_distance += distance * duration
+            self._reindeer_list[deer][3] = total_distance
+            
+        else:
+            if flying:
+                if secflown == duration:
+                    flying = False
+                    rested = 1
+                else:
+                    secflown += 1
+                    distance_flown += distance
+            else:
+                if rested == rest:
+                    flying = True
+                    secflown = 1
+                    distance_flown += distance
+                else:
+                    rested += 1
+            self._reindeer_list[deer][3] = distance_flown
+            self._reindeer_list[deer][4] = flying
+            self._reindeer_list[deer][5] = secflown
+            self._reindeer_list[deer][6] = rested
+            
+    def winner(self) -> int:
+        """return the object's count"""
+        if self._race_type == self.RACE_TYPES[0]:
+            deer = max(self._reindeer_list, key=lambda x:self._reindeer_list[x][3])
+            return f"{deer}, {self._reindeer_list[deer][3]}"
+        else:
+            deer = max(self._points, key=lambda x:self._points[x])
+            return f"{deer}, {self._points[deer]}"
+
