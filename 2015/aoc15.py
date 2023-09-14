@@ -1,6 +1,8 @@
+from math import prod
 import numpy as np
 from hashlib import md5
 import re
+import random
 from itertools import permutations
 
 class Elevator(object):
@@ -753,4 +755,66 @@ class Reindeer(object):
         else:
             deer = max(self._points, key=lambda x:self._points[x])
             return f"{deer}, {self._points[deer]}"
+
+class Cookie(object):
+    """An object to represent the problem"""
+    MAX_TSP = 100
+
+    def __init__(self, ingredients:str) -> None:
+        self._score = 0
+        self._500calscore = 0
+        self._ingredients = {}
+        self._fill_ingredients(ingredients)
+        self._optimize()
+
+    def _fill_ingredients(self, ingredients:list) -> None:
+        """add the ingredients to the dict"""
+        for line in ingredients:
+            name, properties = line.split(': ')
+            properties = [p.strip() for p in properties.split(',')]
+            self._ingredients[name] = {}
+            for prop in properties:
+                self._ingredients[name][prop.split()[0]] = int(prop.split()[1])
+
+    def _random_partition(self, sum_value:int, num_values:int) -> list:
+        """
+            returns a set of num_values that sum to sum_value
+            ex. random_partition(100, 4) -> [37, 26, 28, 27]
+            source: https://stackoverflow.com/a/10287192/2335982
+        """
+        partition = [0] * num_values
+        for _ in range(sum_value):
+            partition[random.randrange(num_values)] += 1
+        return partition
+    
+    def _optimize(self) -> None:
+        """find the optimal ingredient combination"""
+        
+        for _ in range(self.MAX_TSP * 1000): # run extra loops to cover randomness
+            teaspoons = self._random_partition(self.MAX_TSP, len(self._ingredients))
+            capacity, durability, flavor, texture, calories = 0, 0, 0, 0, 0
+            for i in range(len(teaspoons)):
+                calories += \
+                    list(self._ingredients.values())[i]['calories'] * teaspoons[i]
+                capacity += \
+                    list(self._ingredients.values())[i]['capacity'] * teaspoons[i]
+                durability += \
+                    list(self._ingredients.values())[i]['durability'] * teaspoons[i]
+                flavor += \
+                    list(self._ingredients.values())[i]['flavor'] * teaspoons[i]
+                texture += \
+                    list(self._ingredients.values())[i]['texture'] * teaspoons[i]
+            total_score = prod([capacity, durability, flavor, texture])
+            if total_score > self._score:
+                self._score = total_score
+            if calories == 500 and total_score > self._500calscore:
+                self._500calscore = total_score
+        
+    def score(self) -> int:
+        """return the best cookie score"""
+        return self._score
+    
+    def score_500cal(self) -> int:
+        """return the best 500 calorie cookie score"""
+        return self._500calscore
 
