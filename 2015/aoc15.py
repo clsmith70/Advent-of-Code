@@ -3,7 +3,7 @@ import numpy as np
 from hashlib import md5
 import re
 import random
-from itertools import permutations
+from itertools import permutations, combinations
 
 class Elevator(object):
     """The elevator to go between floors"""
@@ -870,3 +870,37 @@ class SueSearch(object):
             if match:
                 return sue
 
+class EggNogStorage(object):
+    """An object to represent the problem"""
+
+    def __init__(self, containers:list, liters:int=150) -> None:
+        self._minimum_combination_count = 0
+        self._combinations = []
+        self._liters = int(liters)
+        self._containers = containers
+
+        self._find_combinations()
+
+    def _find_combinations(self) -> None:
+        """
+            find all the combinations of containers that can hold the 
+            specified number of liters exactly
+        """
+        for c in range(len(self._containers)):
+            for set in combinations(self._containers, c):
+                if sum(list(set)) == self._liters:
+                    self._combinations.append(list(set))
+
+    def Combinations(self) -> int:
+        """return the number of combinations"""
+        return len(self._combinations)
+    
+    def MinimumCombinations(self) -> int:
+        """return the minimum combination count"""
+        shortest = len(min(self._combinations, key=len))
+        new_list = [c for c in self._combinations if len(c) == shortest]
+        # unique_list = []
+        # for item in new_list:
+        #     if item not in unique_list:
+        #         unique_list.append(item)
+        return len(new_list)
