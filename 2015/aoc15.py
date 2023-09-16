@@ -818,3 +818,55 @@ class Cookie(object):
         """return the best 500 calorie cookie score"""
         return self._500calscore
 
+class SueSearch(object):
+    """An object to represent the problem"""
+
+    def __init__(self, data:list, ticker:dict) -> None:
+        self._sue_list = {}
+        self._ticker = ticker
+
+        self._load_list(data)
+
+    def _load_list(self, data:list) -> None:
+        """Load the data into the _sue_list dict"""
+        for line in data:
+            sue, sue_info = line.split(':', 1)
+            sue_info = [s.strip() for s in sue_info.split(',')]
+
+            self._sue_list[sue] = {}
+            for si in sue_info:
+                si = si.split(':')
+                self._sue_list[sue][si[0].strip()] = int(si[1].strip())            
+
+    def ExactSue(self) -> str:
+        """Finds the closest matching Sue with exact number rules"""
+        for sue in self._sue_list:
+            match = True
+            values = self._sue_list[sue]
+            for key in values:
+                if key in self._ticker:
+                    if not self._ticker[key] == values[key]:
+                        match = False
+
+            if match:
+                return sue
+
+    def RetroSue(self) -> str:
+        """Finds the closest matching Sue using inexact number rules"""
+        for sue in self._sue_list:
+            match = True
+            values = self._sue_list[sue]
+            for key in values:
+                if key in self._ticker:
+                    if key == 'cats' or key == 'trees':
+                        if not self._ticker[key] < values[key]:
+                            match = False
+                    elif key == 'pomeranians' or key == 'goldfish':
+                        if not self._ticker[key] > values[key]:
+                            match = False
+                    elif not self._ticker[key] == values[key]:
+                        match = False
+
+            if match:
+                return sue
+
