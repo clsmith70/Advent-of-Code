@@ -4,6 +4,7 @@ from hashlib import md5
 import re
 import random
 from itertools import permutations, combinations
+from scipy.ndimage import generic_filter
 
 class Elevator(object):
     """The elevator to go between floors"""
@@ -904,3 +905,50 @@ class EggNogStorage(object):
         #     if item not in unique_list:
         #         unique_list.append(item)
         return len(new_list)
+
+class AnimatedLights(object):
+    """An object to represent the problem"""
+
+    def __init__(self, lights:list, steps:int=100, conway:bool=False) -> None:
+        self.steps = steps
+        self._size = len(lights)
+        self._lights = np.zeros((len(lights), len(lights)), dtype='int')
+        self._set_grid(lights)
+
+        self._toggle(conway=conway)
+
+    def _set_grid(self, lights:list) -> None:
+        """set the state of the lights in the grid"""
+        for row, line in enumerate(lights):
+            data_row = [{'#': 1, '.': 0}[i] for i in line.strip()]
+            self._lights[row] = data_row
+            
+    def _neighbor_state(self, grid:np.array) -> None:
+        """check the state of a 3x3 grid"""
+        light = grid[4] # get the center of the grid
+        on = np.sum(grid)
+        if light and (on == 3 or on == 4):
+            return 1
+        elif not light and on == 3:
+            return 1
+        else:
+            return 0
+
+    def _toggle(self, conway=False) -> None:
+        """alter the light states"""
+        for _ in range(self.steps):
+            new_grid = generic_filter(self._lights, self._neighbor_state,
+                    size=3, mode='constant')
+            
+            if conway:
+                new_grid[0][0] = 1
+                new_grid[0][-1] = 1
+                new_grid[-1][0] = 1
+                new_grid[-1][-1] = 1
+
+            self._lights = new_grid
+
+    def count(self) -> int:
+        """return the object's count"""
+        return np.sum(self._lights)
+
